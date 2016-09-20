@@ -1,6 +1,7 @@
 cmake_minimum_required(VERSION 2.6 FATAL_ERROR)
 project(fastdecode)
 
+#set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -g")
 set(EXECUTABLE_OUTPUT_PATH ${PROJECT_SOURCE_DIR}/bin)
 include_directories(${CMAKE_CURRENT_SOURCE_DIR})
 
@@ -9,13 +10,19 @@ set(CMAKE_PREFIX_PATH /afs/cs.stanford.edu/u/zxie/libs ${CMAKE_PREFIX_PATH})
 include_directories("/afs/cs.stanford.edu/u/zxie/libs/include")
 link_directories("/afs/cs.stanford.edu/u/zxie/libs/lib")
 
-find_package(Boost 1.53.0 EXACT COMPONENTS python timer)
+set(BOOST_ROOT "/home/guangzhilei/boost")
+find_package(Boost 1.53.0 EXACT COMPONENTS python timer system)
 if (Boost_FOUND)
     add_definitions( "-DHAS_BOOST" )
     message("--Boost Configuration--")
     message(${Boost_LIBRARIES})
     message(${Boost_INCLUDE_DIR})
 endif()
+#add_definitions( "-DHAS_BOOST" )
+#set(Boost_INCLUDE_DIR "/home/guangzhilei/boost/include")
+#set(Boost_LIBRARIES "/home/guangzhilei/boost/lib")
+#message(${Boost_LIBRARIES})
+#message(${Boost_INCLUDE_DIR})
 
 find_package(PythonLibs REQUIRED)
 

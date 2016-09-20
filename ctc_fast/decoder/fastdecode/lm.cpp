@@ -14,7 +14,8 @@ void LM::load_chars(const std::string& fname)
         boost::trim(line);
         boost::split(splits, line, boost::is_any_of(" \t\n"));
         char_map[splits[0]] = atoi(splits[1].c_str());
-        std::cout << splits[0] << " -> " << char_map[splits[0]] << std::endl;
+        int2char[atoi(splits[1].c_str())] = splits[0];
+        //std::cout << splits[0] << " -> " << char_map[splits[0]] << std::endl;
     }
     ifs.close();
 }
@@ -26,6 +27,7 @@ void LM::load_words(const std::string& fname)
     while (std::getline(ifs, line))
     {
         word_list.push_back(boost::trim_copy(line));
+	word_ids.push_back(get_word_id(boost::trim_copy(line)));
     }
     std::cout << "Loaded " << word_list.size() << " words" << std::endl;
 }
@@ -86,6 +88,11 @@ void LM::load_ug(std::ifstream& ifs)
         }
         count += 1;
     }
+    bg_probs_n.resize(count); 
+    for (int i = 0; i < bg_probs_n.size(); i++)
+    {
+	bg_probs_n[i].resize(count);
+    }
     std::cout << "Loaded " << count << " unigrams" << std::endl;
 }
 
@@ -106,8 +113,16 @@ void LM::load_bg(std::ifstream& ifs)
         // TODO Handle trigrams backoffs here
         bg_probs[std::make_pair(word_to_int[splits[1]],
                 word_to_int[splits[2]])] = LM_CONSTS::SCALE * atof(splits[0].c_str());
+	bg_probs_n[word_to_int[splits[1]]][word_to_int[splits[2]]] = LM_CONSTS::SCALE * atof(splits[0].c_str());
         count += 1;
     }
+/*	for (int i = 0; i < bg_probs_n.size(); i++)
+	{
+		for (int j = 0; j < bg_probs_n.size(); j++)
+		{
+			std::cout<<i<<" "<<j<<":"<<bg_prob(i, j)<<std::endl;
+		}
+	}*/
     std::cout << "Loaded " << count << " bigrams" << std::endl;
 }
 
@@ -118,7 +133,12 @@ float LM::ug_prob(int wid)
 
 float LM::bg_prob(int w1, int w2)
 {
-    float p = bg_probs[std::make_pair(w1, w2)];
+  //  float p = bg_probs[std::make_pair(w1, w2)];
+    float p = bg_probs_n[w1][w2];
+    /*if (p - p1 > 0.000001 || p1 - p > 0.000001)
+	{
+	std::cout<<p<<" "<<p1<<std::endl;
+	}*/
     if (p == 0.0)
     {
         p += ug_probs[w1].second + ug_probs[w2].first;

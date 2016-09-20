@@ -29,7 +29,7 @@ double combine(double a, double b, double c)
 
 double prefix_hyp_score(PrefixHyp::Ptr hyp)
 {
-    return combine(hyp->p_nb, hyp->p_b) + COMP_BETA * hyp->nw;
+    return combine(hyp->p_nb, hyp->p_b) + 0.5 * hyp->nw;
 }
 
 bool comp_prefix_pair(const PrefixPair& x, const PrefixPair& y)
@@ -111,6 +111,7 @@ double decode_bg_lm(double* probs, int N, int T, PrefixTree& ptree,
                     // TODO CHECK Assuming not yet in Hnext, may not be true
                     PrefixHyp::Ptr valsN(new PrefixHyp);
                     valsN->node = new_node;
+
                     if (Hnext.find(nprefix) != Hnext.end())
                         valsN = Hnext[nprefix];
                     else
@@ -123,6 +124,29 @@ double decode_bg_lm(double* probs, int N, int T, PrefixTree& ptree,
                     }
                     else {
                         bg = 0.0;
+					   	if (hyp->nw > 1)
+					   	{
+							float score1 = -1000.0;
+							float score2 = -1000.0;
+							if (valsN->node->probScore.find(hyp->wid) != valsN->node->probScore.end())
+							{
+								score1 = valsN->node->probScore[hyp->wid];
+							}
+							else
+							{
+								if (valsN->node->is_word)
+								{
+									score1 = ptree.lm.bg_prob(hyp->wid, valsN->node->word_id);
+								}
+							}
+							if ( hyp->node->probScore.find(hyp->wid) !=  hyp->node->probScore.end())
+							{
+								score2 = hyp->node->probScore[hyp->wid];
+							}
+
+                        	bg = (score1 - score2);
+						//	std::cout<<"pre-word:"<<hyp->wid<<" s1:"<<score1<<" s2:"<<score2<<" bg:"<<bg<<std::endl;
+						}
                         valsN->wid = hyp->wid;
                         valsN->nw = hyp->nw;
                     }

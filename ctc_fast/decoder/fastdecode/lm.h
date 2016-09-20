@@ -55,7 +55,10 @@ class LM
     boost::unordered_map<int, std::pair<float, float> > ug_probs;
     boost::unordered_map<std::pair<int, int>, float> bg_probs;
     boost::unordered_map<std::string, int> char_map;
+    boost::unordered_map<int, std::string> int2char;
 
+    std::vector<std::vector<float> > bg_probs_n;
+    std::vector<int> word_ids;
     std::vector<std::string> word_list;
     int start, end, unk;
     int num_words;
