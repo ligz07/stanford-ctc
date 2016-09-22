@@ -29,7 +29,7 @@ double combine(double a, double b, double c)
 
 double prefix_hyp_score(PrefixHyp::Ptr hyp)
 {
-    return combine(hyp->p_nb, hyp->p_b) + 0.5 * hyp->nw;
+    return combine(hyp->p_nb, hyp->p_b) + 0.0 * hyp->nw;
 }
 
 bool comp_prefix_pair(const PrefixPair& x, const PrefixPair& y)
@@ -124,7 +124,7 @@ double decode_bg_lm(double* probs, int N, int T, PrefixTree& ptree,
                     }
                     else {
                         bg = 0.0;
-					   	if (hyp->nw > 1)
+					   	if (hyp->nw > 0)
 					   	{
 							float score1 = -1000.0;
 							float score2 = -1000.0;
@@ -144,7 +144,7 @@ double decode_bg_lm(double* probs, int N, int T, PrefixTree& ptree,
 								score2 = hyp->node->probScore[hyp->wid];
 							}
 
-                        	bg = (score1 - score2);
+                        	bg = alpha*(score1 - score2);
 						//	std::cout<<"pre-word:"<<hyp->wid<<" s1:"<<score1<<" s2:"<<score2<<" bg:"<<bg<<std::endl;
 						}
                         valsN->wid = hyp->wid;

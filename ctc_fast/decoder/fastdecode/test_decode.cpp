@@ -6,15 +6,15 @@
 #include <boost/algorithm/string.hpp>
 // Mainly for profiling purposes
 
-void decode(double *pData, int beam, int N, int T, PrefixTree &pTree, std::ofstream &output)
+void decode(double *pData, int beam, int N, int T, PrefixTree &pTree, std::ofstream &output, float alpha)
 {
     PrefixKey best_prefix;
-    double alpha = 1.0;
+//double alpha = 1.0;
     double beta = 0.0;
     boost::timer::cpu_timer timer;
     double best_score = decode_bg_lm(pData, N, T, pTree, beam, alpha, beta, best_prefix);
     boost::timer::cpu_times elapsed = timer.elapsed();
-    std::cout << "decoding time (wall): " << elapsed.wall / 1e9 << std::endl;
+    std::cout << "decoding time (wall): " << elapsed.wall / 1e9 << "score:" << best_score << std::endl;
 
     for (int k = 0; k < best_prefix.size(); k++)
     {
@@ -27,6 +27,10 @@ void decode(double *pData, int beam, int N, int T, PrefixTree &pTree, std::ofstr
 }
 int main(int argc, char** argv)
 {
+    if (argc < 2)
+    {
+        return 0;
+    }
     int N = 3668;
     int T = 475;
     //int N = 10;
@@ -40,11 +44,16 @@ int main(int argc, char** argv)
     PrefixTree ptree(CHARMAP_PATH + "/chars.txt",
                      CHARMAP_PATH + "/wordlist",
                      CHARMAP_PATH + "/lm_bg.arpa");
-
     // Decode!
     int beam = atoi(argv[1]);
     int count = 0;
-    std::ofstream output("output");
+    float alpha = atof(argv[2]);
+    std::string outFile = "output";
+    outFile.append("_");
+    outFile.append(argv[1]);
+    outFile.append("_");
+    outFile.append(argv[2]);
+    std::ofstream output(outFile.c_str());
     while (!feof(fp))
     {
         int n = fread(&T, sizeof(int), 1, fp);
@@ -55,7 +64,7 @@ int main(int argc, char** argv)
         double *data = new double[N*T];
         memset(data, 0, sizeof(double)*N*T);
         fread(data, sizeof(double), N*T, fp);
-        decode(data, beam, N, T, ptree, output);
+        decode(data, beam, N, T, ptree, output, alpha);
         count++;
         delete [] data;
     }

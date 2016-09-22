@@ -3,7 +3,7 @@
 int main(int argc, char** argv)
 {
     // TODO FIXME PARAM Import
-    std::string CHARMAP_PATH = "/scail/group/deeplearning/speech/zxie/kaldi-stanford/kaldi-trunk/egs/wsj/s6/ctc-utils";
+    std::string CHARMAP_PATH = "/home/guangzhilei/stanford-ctc-master/exp/hkust/lm";
 
     PrefixTree ptree(CHARMAP_PATH + "/chars.txt",
                      CHARMAP_PATH + "/wordlist",
